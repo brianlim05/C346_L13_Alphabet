@@ -1,35 +1,38 @@
-import React, {useState} from 'react';
-import {StatusBar, View, Button, Text, TextInput} from 'react-native';
+import React,{useState} from 'react';
+import { StatusBar, View, Button, Text, TextInput } from 'react-native';
 import {Picker} from '@react-native-picker/picker';
-import {datasource} from './Data';
-
-const Add = ({navigation}) => {
-    const [letter, setLetter] = useState("");
-    const [type, setType] = useState("Vowels");
-
-    return (
-        <View>
-            <StatusBar/>
-            <Text>Letter:</Text>
-            <TextInput maxLength={1} style={{borderWidth: 1}} onChangeText={(text) => setLetter(text)}/>
-            <Picker onValueChange={(value) => setType(value)}>
-                <Picker.Item label='Vowels' value='Vowels'/>
-                <Picker.Item label='Consonants' value='Consonants'/>
-            </Picker>
-            <Button title='Submit'
-                    onPress={() => {
-                        let item = {key: letter};
-                        let indexnum = 1;
-                        if (type == "Vowels") {
-                            indexnum = 0;
-                        }
-                        datasource[indexnum].data.push(item);
-                        navigation.navigate("Home")
-                    }
-                    }
-            />
-        </View>
-    );
+import AsyncStorage from '@react-native-async-storage/async-storage';
+const Add = ({navigation, route}) => {
+  const[letter,setLetter] = useState("");
+  const[type,setType] = useState("Vowels");
+  const setData = async(value) => {
+    AsyncStorage.setItem("alphadata", value);
+    navigation.navigate("Home");
+  };
+  return (
+    <View>
+      <StatusBar/>
+      <Text>Letter:</Text>
+      <TextInput maxLength={1} style={{borderWidth:1}} onChangeText={(text)=>setLetter(text)}/>
+      <Picker onValueChange={(value)=>setType(value)}>
+ 	<Picker.Item label='Vowels' value='Vowels'/>
+        <Picker.Item label='Consonants' value='Consonants'/>
+      </Picker>
+      <Button title='Submit'
+      onPress={()=>{
+          let myData = JSON.parse(route.params.datastring);
+          let item = {key:letter};
+          let indexnum = 1;
+          if(type=="Vowels") {
+            indexnum = 0;
+          }
+          myData[indexnum].data.push(item);
+          let stringdata = JSON.stringify(myData);
+          setData(stringdata);
+        }
+      }
+      />
+    </View>
+  );
 };
-
 export default Add;
